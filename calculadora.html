@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interface - Calculadora</title>
+    <style>
+
+
+
+        {
+            margin 0;
+            top: 0;
+            box-sizing: border-box;
+        }
+
+        html{
+            background: rgb(158,200,217);
+
+            height: 100%;
+        }
+
+        body{
+            color: red;
+            font-size: 20px;
+            font-weight: 300;
+
+        }
+
+        .calculadora{
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300px;
+            text-align: center;
+            transform: translate(-50%, -50%);
+            background: purple;
+            border-radius: 5px;
+            padding: 30px 30px;
+            justify-content: center;
+        }
+
+        .calculadora h1{
+            margin: 0;
+        }
+
+        .calculadora button{
+            margin: 4px;
+            background-color:white;
+            color: black;
+            cursor: pointer;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .calculadora button:hover{
+            background-color:rgba(105, 11, 168, 0.3);
+        }
+
+
+        .res{
+            outline: none;
+            width: 100%;
+            min-height: 20px;
+            font-size: 22px;
+            padding: 4px 0;
+            font-family:Tahoma, Geneva, Verdana, sans-serif;
+            text-align: right;
+            padding-right: 10px;
+            margin: 20px 0;
+            background-color: rgba(255, 255, 255, 0.322);
+        }
+
+        .textarea{
+            outline: none;
+            width: 100%;
+            min-height: 100px;
+            font-size: 22px;
+            padding: 4px 0;
+            font-family:Tahoma, Geneva, Verdana, sans-serif;
+            text-align: right;
+            padding-right: 10px;
+            margin: 20px 0;
+            background-color: rgba(255, 255, 255, 0.322);
+            resize: none;
+
+
+
+        }
+
+        .calculadora-btn{
+display: flex;
+justify-content: center;
+
+
+        }
+
+    </style>
+</head>
+<body>
+
+    <main id="calculadora" class="calculadora">
+
+        <h1>Calculadora</h1>
+
+        <div class="armazena" id="armazena">
+
+           <textarea id="w3review" name="w3review" class="textarea" disabled>
+               </textarea>
+
+            <div class="resultado" id="resultado">
+
+                <input type="text" class="res" id="res">
+
+            </div><!-- resultado -->
+            <div class="teclado" id="teclado">
+
+                <table class="calculadora-btn">
+                    <tr>
+                        <td><button onclick="clearAll()">C</button></td>
+                        <td><button style="padding: 15px 12px;" onclick="ce()">CE</button></td>
+                        <td><button>*</button></td>
+                        <td><button>÷</button></td>
+                    </tr>
+                    <tr>
+                        <td><button onclick="clicado('1')">1</button></td>
+                        <td><button onclick="clicado('2')">2</button></td>
+                        <td><button onclick="clicado('3')">3</button></td>
+                        <td><button onclick="Somar()">+</button></td>
+                    </tr>
+                    <tr>
+                        <td><button onclick="clicado('4')">4</button></td>
+                        <td><button onclick="clicado('5')">5</button></td>
+                        <td><button onclick="clicado('6')">6</button></td>
+                        <td><button>–</button></td>
+                    </tr>
+                    <tr>
+                        <td><button onclick="clicado('7')">7</button></td>
+                        <td><button onclick="clicado('8')">8</button></td>
+                        <td><button onclick="clicado('9')">9</button></td>
+                        <td><button>%</button></td>
+                    </tr>
+                    <tr>
+                        <td><button onclick="clicado('0')">0</button></td>
+                        <td colspan="2"><button style="width: 120px;">=</button></td>
+                    </tr>
+                </table>
+
+
+            </div>
+        
+        </main>
+        
+
+
+<script>
+
+    tamanhototal = 10;
+        
+    topo = 0;
+        
+    var numeros = [tamanhototal];
+
+
+    function clicado(num){
+        if(topo < tamanhototal){
+        numeros[topo] = num;
+        numero = document.getElementById("res").value;
+        document.getElementById("res").value = numero + "" + numeros[topo];
+        topo++;
+        }else{
+        alert("Está cheio.");
+        topo = tamanhototal;
+        }
+    }
+
+    function Armazenar(){
+        valorInput = document.querySelector('.res');
+        val1 = valorInput.value;
+        return val1;
+    }
+
+    function ce(){
+        topo--;
+        if(topo > 0){
+        numeros.splice(topo, 1);
+        numero = document.getElementById("res").value;
+        console.log(numeros);
+        document.getElementById("res").value = numero.replace(/.$/, '');
+        }else{
+        topo = 0;
+        document.getElementById("res").value = "";
+        }
+    
+    }
+
+    function clearAll(){
+        document.getElementById("res").value = ""; 
+    }
+
+
+
+</script>
+
+    
+</body>
+</html>
