@@ -121,32 +121,32 @@ justify-content: center;
 
                 <table class="calculadora-btn">
                     <tr>
-                        <td><button onclick="clearAll()">C</button></td>
-                        <td><button style="padding: 15px 12px;" onclick="ce()">CE</button></td>
-                        <td><button>*</button></td>
-                        <td><button>÷</button></td>
+                        <td><button class="click-button">C</button></td>
+                        <td><button class="click-button">CE</button></td>
+                        <td><button class="operadores">%</button></td>
+                        <td><button class="operadores">*</button></td>
                     </tr>
                     <tr>
-                        <td><button onclick="clicado('1')">1</button></td>
-                        <td><button onclick="clicado('2')">2</button></td>
-                        <td><button onclick="clicado('3')">3</button></td>
-                        <td><button onclick="Somar()">+</button></td>
+                        <td><button class="click-button">1</button></td>
+                        <td><button class="click-button">2</button></td>
+                        <td><button class="click-button">3</button></td>
+                        <td><button class="operadores">/</button></td>
                     </tr>
                     <tr>
-                        <td><button onclick="clicado('4')">4</button></td>
-                        <td><button onclick="clicado('5')">5</button></td>
-                        <td><button onclick="clicado('6')">6</button></td>
-                        <td><button>–</button></td>
+                        <td><button class="click-button">4</button></td>
+                        <td><button class="click-button">5</button></td>
+                        <td><button class="click-button">6</button></td>
+                        <td><button class="operadores">+</button></td>
                     </tr>
                     <tr>
-                        <td><button onclick="clicado('7')">7</button></td>
-                        <td><button onclick="clicado('8')">8</button></td>
-                        <td><button onclick="clicado('9')">9</button></td>
-                        <td><button>%</button></td>
+                        <td><button class="click-button">7</button></td>
+                        <td><button class="click-button">8</button></td>
+                        <td><button class="click-button">9</button></td>
+                        <td><button class="operadores">-</button></td>
                     </tr>
                     <tr>
-                        <td><button onclick="clicado('0')">0</button></td>
-                        <td colspan="2"><button style="width: 120px;">=</button></td>
+                        <td colspan="2"><button class="click-button">0</button></td>
+                        <td colspan="2"><button class="resultado">=</button></td>
                     </tr>
                 </table>
 
@@ -164,43 +164,51 @@ justify-content: center;
     topo = 0;
         
     var numeros = [tamanhototal];
-
-
-    function clicado(num){
-        if(topo < tamanhototal){
-        numeros[topo] = num;
-        numero = document.getElementById("res").value;
-        document.getElementById("res").value = numero + "" + numeros[topo];
-        topo++;
-        }else{
-        alert("Está cheio.");
-        topo = tamanhototal;
-        }
-    }
-
-    function Armazenar(){
-        valorInput = document.querySelector('.res');
-        val1 = valorInput.value;
-        return val1;
-    }
-
-    function ce(){
-        topo--;
-        if(topo > 0){
-        numeros.splice(topo, 1);
-        numero = document.getElementById("res").value;
-        console.log(numeros);
-        document.getElementById("res").value = numero.replace(/.$/, '');
-        }else{
-        topo = 0;
-        document.getElementById("res").value = "";
-        }
     
-    }
+    // Selecionando elementos
+const screen = document.getElementById("w3review");
+const inputNumber = document.getElementById("res");
+const clickButton = document.querySelectorAll(".click-button");
+const operadores = document.querySelectorAll(".operadores");
+const resultado = document.querySelector(".resultado");
 
-    function clearAll(){
-        document.getElementById("res").value = ""; 
-    }
+const ops = {
+  somar: "+",
+  subtrair: "-",
+  dividir: "/",
+  multiplicar: "*",
+  modulo: "%",
+};
+
+operadores.forEach((item) => {
+  item.setAttribute("onclick", "gotOper(this)");
+});
+
+function gotClick(e) {
+  inputNumber.value += e.innerText;
+  /* screen.disabled = "false";
+  screen.value = inputNumber.value + "\n";
+  screen.disabled = "true";
+  inputNumber.value = ""; */
+}
+
+function write(e) {
+  screen.disabled = "false";
+  screen.value += e.innerText + "\n";
+  screen.disabled = "true";
+  inputNumber.value = "";
+}
+
+function gotOper(e) {
+  screen.disabled = "false";
+  screen.value += `${inputNumber.value}\n ${e.innerText}\n`;
+  screen.disabled = "true";
+  inputNumber.value = "";
+}
+
+clickButton.forEach((item) => {
+  item.setAttribute("onclick", "gotClick(this)");
+});
 
 
 
