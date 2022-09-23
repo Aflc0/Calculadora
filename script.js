@@ -85,32 +85,38 @@ class Calculator {
 const calculadora = new Calculator();
 
 //Mostra as duas pilhas
-function mostrarPilhas() {
+function mostrarPilhas(x) {
   console.log("Números: " + p_numeros + " Operadores: " + p_operadores);
+  console.log(x);
 }
 
 //Verifica operador anterior e executa operação
 
 function verificarAnterior(op) {
+  if (topNum <= 1 || topOpe <= 1) {
+    return;
+  }
+
   let n1 = parseInt(p_numeros[topNum - 2]);
   let n2 = parseInt(p_numeros[topNum - 1]);
   let topoAnterior = p_operadores[topOpe - 2];
   if (op == topoAnterior) {
     executaOperacao(op);
-  } else if (
-    (op == "+" || op == "-") &&
-    (topoAnterior == "*" || topoAnterior == "/" || topoAnterior == "%")
-  ) {
-    executaOperacao(op);
+  } else if (op == "+" || op == "-") {
+    if (topoAnterior == "*" || topoAnterior == "/" || topoAnterior == "%") {
+      executaOperacao(topoAnterior);
+    } else if (topoAnterior == "-" || topoAnterior == "+") {
+      executaOperacao(topoAnterior);
+    }
+  } else if (op == "/" || op == "*" || op == "%") {
+    if (topoAnterior == "*" || topoAnterior == "%" || topoAnterior == "/") {
+      executaOperacao(topoAnterior);
+    } else {
+      return;
+    }
   } else if (op == "=") {
     executaOperacao(topoAnterior);
     $screen.value = p_numeros[0];
-  } else if (op == "+" && topoAnterior == "-") {
-    executaOperacao(topoAnterior);
-  } else if (op == "-" && topoAnterior == "+") {
-    executaOperacao(topoAnterior);
-  } else if (op == "=") {
-    executaOperacao(op);
   }
 
   function executaOperacao(oper) {
@@ -118,67 +124,52 @@ function verificarAnterior(op) {
       case "*":
         //Substituir numero
         p_numeros[topNum - 2] = n1 * n2;
-        p_numeros[topNum - 1] = "";
+        topNum--;
         //Substituir operador
         p_operadores[topOpe - 2] = p_operadores[topOpe - 1];
-        p_operadores[topOpe - 1] = "";
-        topNum--;
         topOpe--;
-        topoAnterior = p_operadores[topOpe - 2];
+        topoAnterior = p_operadores[topOpe - 1];
         verificarAnterior(topoAnterior);
-
         break;
       case "/":
         //Substituir numero
         p_numeros[topNum - 2] = n1 / n2;
-        p_numeros[topNum - 1] = "";
+        topNum--;
         //Substituir operador
         p_operadores[topOpe - 2] = p_operadores[topOpe - 1];
-        p_operadores[topOpe - 1] = "";
-        topNum--;
         topOpe--;
-        topoAnterior = p_operadores[topOpe - 2];
+        topoAnterior = p_operadores[topOpe - 1];
         verificarAnterior(topoAnterior);
-
         break;
       case "%":
         //Substituir numero
         p_numeros[topNum - 2] = n1 % n2;
-        p_numeros[topNum - 1] = "";
+        topNum--;
         //Substituir operador
         p_operadores[topOpe - 2] = p_operadores[topOpe - 1];
-        p_operadores[topOpe - 1] = "";
-        topNum--;
         topOpe--;
-        topoAnterior = p_operadores[topOpe - 2];
+        topoAnterior = p_operadores[topOpe - 1];
         verificarAnterior(topoAnterior);
-
         break;
       case "+":
         //Substituir numero
         p_numeros[topNum - 2] = n1 + n2;
-        p_numeros[topNum - 1] = "";
+        topNum--;
         //Substituir operador
         p_operadores[topOpe - 2] = p_operadores[topOpe - 1];
-        p_operadores[topOpe - 1] = "";
-        topNum--;
         topOpe--;
-        topoAnterior = p_operadores[topOpe - 2];
+        topoAnterior = p_operadores[topOpe - 1];
         verificarAnterior(topoAnterior);
-
         break;
       case "-":
         //Substituir numero
         p_numeros[topNum - 2] = n1 - n2;
-        p_numeros[topNum - 1] = "";
+        topNum--;
         //Substituir operador
         p_operadores[topOpe - 2] = p_operadores[topOpe - 1];
-        p_operadores[topOpe - 1] = "";
-        topNum--;
         topOpe--;
-        topoAnterior = p_operadores[topOpe - 2];
+        topoAnterior = p_operadores[topOpe - 1];
         verificarAnterior(topoAnterior);
-
         break;
     }
   }
