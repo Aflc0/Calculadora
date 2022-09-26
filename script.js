@@ -1,49 +1,56 @@
+// Selecionando elementos
 const $screen = document.getElementById("w3review");
 const $input = document.getElementById("res");
 const $buttons = document.querySelectorAll(".click-button");
 
-const p_lenght = 5;
-const p_numeros = new Array(p_lenght);
-const p_operadores = new Array(p_lenght);
-let topNum = 0;
-let topOpe = 0;
-let lastEntrance;
+//Definindo variáveis
+const SIZE = 5;
+const numeros = new Array(SIZE);
+const operadores = new Array(SIZE);
+let topoNumeros = 0;
+let topoOperadores = 0;
+
+//Lista de possíveis operações
+const basicoperation = ["+", "-"];
+const precedence = ["*", "/", "%"];
+
+//Adiciona atributo a todos os botões
+$buttons.forEach((item) => {
+  item.setAttribute("onclick", "fetch(this.innerText)");
+});
 
 class Calculator {
-  constructor() {}
+  constructor() {
+    this.cleanAll;
+  }
 
   //Adiciona pilha de operadores
-  addOperStack(enter) {
-    if (topOpe < p_lenght) {
-      p_operadores[topOpe] = enter;
-      topOpe++;
+  add_pilha_num(number) {
+    if (topoOperadores < SIZE) {
+      numeros[topoNumeros] = number;
+      topoNumeros++;
     } else {
       alert("Está cheio!");
-      topOpe = p_lenght;
+      topoNumeros = SIZE;
     }
   }
 
   //Adiciona Pilha de números
-  addNumberStack(enter) {
-    if (topNum < p_lenght) {
-      p_numeros[topNum] = enter;
-      topNum++;
+  add_pilha_ops(operator) {
+    if (topoOperadores < SIZE) {
+      operadores[topoOperadores] = operator;
+      topoOperadores++;
     } else {
       alert("Está cheio!");
-      topNum = p_lenght;
+      topoOperadores = SIZE;
     }
   }
 
   //Atualiza textarea
   updateScreen(val) {
     $screen.disabled = "false";
-    $screen.value += `${$input.value}\n ${val}\n`;
+    $screen.value += `${$input.value}\n${val}\n`;
     $screen.disabled = "true";
-  }
-
-  //Pega valor clicado e coloca no input
-  updateInput(val) {
-    $input.value += val;
   }
 
   //Limpa o input
@@ -55,28 +62,133 @@ class Calculator {
   cleanAll() {
     $input.value = "";
     $screen.value = "";
-    while (topNum >= 0) {
-      p_numeros[topNum] = "";
-      topNum--;
-    }
-    while (topOpe >= 0) {
-      p_operadores[topOpe] = "";
-      topOpe--;
+    topoNumeros = 0;
+    topoOperadores = 0;
+  }
+
+  //Recebe o dígito diretamente da função Fetch
+  insertData(data) {
+    //Seleciona o ultimo valor no visor
+    let screen_value = $screen.value.trim();
+
+    //Verifica se data é operador
+    if (isNaN(data)) {
+      //Verifica se o visor está vazio
+      if (screen_value == "") {
+        if (!$input.value) {
+          console.log("Digite um número");
+
+          //Input não está vazio, executa operação
+        } else {
+          this.moveToStark(data);
+        }
+
+        //Tem valor no visor
+      } else {
+        //Verifica se é operador
+        if (isNaN(screen_value)) {
+          //É operador e input está vazio
+          if (!$input.value) {
+            console.log("Digite um número");
+
+            //É operador e input não está vazio, executa operação
+          } else {
+            this.moveToStark(data);
+          }
+
+          //Não é operador, executa operação
+        } else {
+          this.moveToStark(data);
+        }
+      }
+
+      //data não é operador
+    } else {
+      //Verifica se visor está vazio
+      if (screen_value != "" && !isNaN(screen_value)) {
+        console.log("Esperando operador");
+      } else {
+        $input.value += data;
+      }
     }
   }
 
-  //Calcula operação
-  calculate(equal) {
-    let lastDigit = $screen.value.trim().slice(-1);
-    if (!lastDigit) {
-      return;
-    } else if (isNaN(lastDigit) && !$input.value) {
-      console.log("Digite um número");
-      return;
+  moveToStark(operator) {
+    if (!$input.value) {
+      console.log("Esperando numero");
     } else {
-      calculadora.addNumberStack($input.value);
-      calculadora.updateScreen();
-      calculadora.clean();
+      this.add_pilha_num(parseInt($input.value));
+    }
+    if (operator == "=") {
+      this.verifyOperation(operadores[topoOperadores - 1]);
+      this.clean();
+    } else {
+      this.add_pilha_ops(operator);
+      this.updateScreen(operator);
+      this.clean();
+      this.verifyOperation(operator);
+    }
+  }
+
+  organize(result, sequence) {
+    let lastOperator;
+
+    numeros[topoNumeros - 2] = result;
+    topoNumeros--;
+    if (sequence === 1) {
+      lastOperator = operadores[topoOperadores - 2];
+    } else {
+      lastOperator = operadores[topoOperadores - 1];
+    }
+    operadores[topoOperadores - 2] = lastOperator;
+    topoOperadores--;
+    this.verifyOperation(lastOperator);
+  }
+
+  verifyOperation(data) {
+    if (topoNumeros >= 2) {
+      let currentOperator = data;
+      let lastOperator = operadores[topoOperadores - 2];
+      let num = numeros[topoNumeros - 2];
+      let num2 = numeros[topoNumeros - 1];
+
+      if (!lastOperator) {
+        let result = this.execute(currentOperator, num, num2);
+        numeros[topoNumeros - 2] = result;
+        topoNumeros--;
+        topoOperadores--;
+        $screen.value = result;
+      } else {
+        if (precedence.includes(lastOperator)) {
+          let result = this.execute(lastOperator, num, num2);
+          this.organize(result);
+        } else {
+          if (basicoperation.includes(currentOperator)) {
+            let result = this.execute(lastOperator, num, num2);
+            this.organize(result);
+          } else {
+            if (topoNumeros > topoOperadores) {
+              let result = this.execute(currentOperator, num, num2);
+              this.organize(result, 1);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  execute(operator, x, y) {
+    switch (operator) {
+      case "+":
+        return x + y;
+      case "-":
+        return x - y;
+      case "*":
+        return x * y;
+      case "/":
+        return Math.trunc(x / y);
+      case "%":
+        return Math.trunc(x % y);
     }
   }
 }
@@ -84,115 +196,13 @@ class Calculator {
 //Instancia objeto
 const calculadora = new Calculator();
 
-//Mostra as duas pilhas
-function mostrarPilhas(x) {
-  console.log("Números: " + p_numeros + " Operadores: " + p_operadores);
+function fetch(data) {
+  calculadora.insertData(data);
+}
+
+//Função de debugg
+/* function mostrarPilhas(x) {
+  console.log("Números: " + numeros + " Operadores: " + operadores);
   console.log(x);
-}
-
-//Verifica operador anterior e executa operação
-
-function verificarAnterior(op) {
-  if (topNum <= 1 || topOpe <= 1) {
-    return;
-  }
-
-  let n1 = parseInt(p_numeros[topNum - 2]);
-  let n2 = parseInt(p_numeros[topNum - 1]);
-  let topoAnterior = p_operadores[topOpe - 2];
-  if (op == topoAnterior) {
-    executaOperacao(op);
-  } else if (op == "+" || op == "-") {
-    if (topoAnterior == "*" || topoAnterior == "/" || topoAnterior == "%") {
-      executaOperacao(topoAnterior);
-    } else if (topoAnterior == "-" || topoAnterior == "+") {
-      executaOperacao(topoAnterior);
-    }
-  } else if (op == "/" || op == "*" || op == "%") {
-    if (topoAnterior == "*" || topoAnterior == "%" || topoAnterior == "/") {
-      executaOperacao(topoAnterior);
-    } else {
-      return;
-    }
-  } else if (op == "=") {
-    executaOperacao(topoAnterior);
-    $screen.value = p_numeros[0];
-  }
-
-  function executaOperacao(oper) {
-    switch (oper) {
-      case "*":
-        //Substituir numero
-        p_numeros[topNum - 2] = n1 * n2;
-        topNum--;
-        //Substituir operador
-        p_operadores[topOpe - 2] = p_operadores[topOpe - 1];
-        topOpe--;
-        topoAnterior = p_operadores[topOpe - 1];
-        verificarAnterior(topoAnterior);
-        break;
-      case "/":
-        //Substituir numero
-        p_numeros[topNum - 2] = n1 / n2;
-        topNum--;
-        //Substituir operador
-        p_operadores[topOpe - 2] = p_operadores[topOpe - 1];
-        topOpe--;
-        topoAnterior = p_operadores[topOpe - 1];
-        verificarAnterior(topoAnterior);
-        break;
-      case "%":
-        //Substituir numero
-        p_numeros[topNum - 2] = n1 % n2;
-        topNum--;
-        //Substituir operador
-        p_operadores[topOpe - 2] = p_operadores[topOpe - 1];
-        topOpe--;
-        topoAnterior = p_operadores[topOpe - 1];
-        verificarAnterior(topoAnterior);
-        break;
-      case "+":
-        //Substituir numero
-        p_numeros[topNum - 2] = n1 + n2;
-        topNum--;
-        //Substituir operador
-        p_operadores[topOpe - 2] = p_operadores[topOpe - 1];
-        topOpe--;
-        topoAnterior = p_operadores[topOpe - 1];
-        verificarAnterior(topoAnterior);
-        break;
-      case "-":
-        //Substituir numero
-        p_numeros[topNum - 2] = n1 - n2;
-        topNum--;
-        //Substituir operador
-        p_operadores[topOpe - 2] = p_operadores[topOpe - 1];
-        topOpe--;
-        topoAnterior = p_operadores[topOpe - 1];
-        verificarAnterior(topoAnterior);
-        break;
-    }
-  }
-}
-
-//Função chamada ao clicar em um operador
-function getInput(input) {
-  if (isNaN(input)) {
-    if (!$input.value) {
-      console.log("Digite um número");
-    } else {
-      calculadora.addNumberStack($input.value);
-      calculadora.updateScreen(input);
-      calculadora.clean();
-      calculadora.addOperStack(input);
-      verificarAnterior(input);
-    }
-  } else {
-    calculadora.updateInput(input);
-  }
-}
-
-//Adiciona atributo a todos os botões
-$buttons.forEach((item) => {
-  item.setAttribute("onclick", "getInput(this.innerText)");
-});
+  console.log("Topo num: " + topoNumeros + "\nTopo Op: " + topoOperadores);
+} */
